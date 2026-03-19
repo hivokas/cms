@@ -2,8 +2,10 @@
 
 namespace Statamic\Fieldtypes;
 
+use Statamic\Exceptions\AuthorizationException;
 use Statamic\Facades\GraphQL;
 use Statamic\Facades\Scope;
+use Statamic\Facades\User;
 use Statamic\Facades\UserGroup;
 use Statamic\GraphQL\Types\UserGroupType;
 
@@ -29,6 +31,8 @@ class UserGroups extends Relationship
 
     public function getIndexItems($request)
     {
+        throw_if(User::current()->cant('assign user groups'), new AuthorizationException);
+
         return UserGroup::all()->sortBy('title')->map(function ($group) {
             return [
                 'id' => $group->handle(),

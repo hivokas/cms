@@ -2,9 +2,11 @@
 
 namespace Statamic\Fieldtypes;
 
+use Statamic\Exceptions\AuthorizationException;
 use Statamic\Facades\GraphQL;
 use Statamic\Facades\Role;
 use Statamic\Facades\Scope;
+use Statamic\Facades\User;
 use Statamic\GraphQL\Types\RoleType;
 
 use function Statamic\trans as __;
@@ -41,6 +43,8 @@ class UserRoles extends Relationship
 
     public function getIndexItems($request)
     {
+        throw_if(User::current()->cant('assign roles'), new AuthorizationException);
+
         return Role::all()->sortBy('title')->map(function ($role) {
             return [
                 'id' => $role->handle(),
